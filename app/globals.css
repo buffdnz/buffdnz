@@ -1,15 +1,19 @@
 @import "tailwindcss";
 
 @keyframes marquee {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 input:-webkit-autofill,
 input:-webkit-autofill:focus,
 textarea:-webkit-autofill,
 select:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0px 1000px var(--surface-strong) inset;
+  -webkit-box-shadow: 0 0 0 1000px var(--surface-strong) inset;
   -webkit-text-fill-color: var(--text);
   transition: background-color 5000s ease-in-out 0s;
 }
@@ -20,13 +24,111 @@ select:-webkit-autofill {
   --surface-strong: #ffffff;
   --text: #111827;
   --text-muted: #475569;
-  --border: rgba(15, 23, 42, 0.10);
+  --border: rgba(15, 23, 42, 0.1);
+
   --hero-from: #dbeafe;
   --hero-via: #e9d5ff;
   --hero-to: #fbcfe8;
+
   --accent-from: #60a5fa;
   --accent-to: #d946ef;
   --accent-solid: #7c3aed;
+
+  --buffd-cyan: #4fe7ff;
+  --buffd-teal: #2fd6e7;
+  --buffd-purple: #9b4dff;
+  --buffd-magenta: #ff53d8;
+  --buffd-ink: #12061e;
+  --buffd-deep: #1b1027;
+  --buffd-shadow: rgba(0, 0, 0, 0.45);
+  --buffd-glow-cyan: 0 0 18px rgba(79, 231, 255, 0.35);
+  --buffd-glow-purple: 0 0 22px rgba(155, 77, 255, 0.28);
+  --buffd-gradient: linear-gradient(
+    180deg,
+    #4fe7ff 0%,
+    #71d8ff 30%,
+    #9b78ff 68%,
+    #9b4dff 100%
+  );
+}
+
+html.dark {
+  --bg: #050816;
+  --surface: rgba(15, 23, 42, 0.78);
+  --surface-strong: #0f172a;
+  --text: #f8fafc;
+  --text-muted: #cbd5e1;
+  --border: rgba(255, 255, 255, 0.1);
+
+  --hero-from: #0f172a;
+  --hero-via: #312e81;
+  --hero-to: #701a75;
+
+  --accent-from: #60a5fa;
+  --accent-to: #e879f9;
+  --accent-solid: #a855f7;
+}
+
+html {
+  scroll-behaviour: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+}
+
+.buffd-surface-main {
+  background:
+    radial-gradient(circle at top, rgba(79, 231, 255, 0.08), transparent 32%),
+    radial-gradient(circle at 70% 20%, rgba(155, 77, 255, 0.1), transparent 28%),
+    linear-gradient(180deg, #16111f 0%, #0f0b16 100%);
+}
+
+.buffd-logo {
+  display: inline-block;
+  height: auto;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.35));
+}
+
+.buffd-logo--hero {
+  width: clamp(120px, 30vw, 420px);
+}
+
+.buffd-logo--nav {
+  width: 128px;
+}
+
+.buffd-logo--card {
+  width: 110px;
 }
 
 .theme-surface {
@@ -46,26 +148,11 @@ select:-webkit-autofill {
 
 .theme-accent {
   background: linear-gradient(135deg, var(--accent-from), var(--accent-to));
-  color: white;
+  color: #fff;
 }
 
 .theme-hero {
   background: linear-gradient(135deg, var(--hero-from), var(--hero-via), var(--hero-to));
-}
-
-html.dark {
-  --bg: #050816;
-  --surface: rgba(15, 23, 42, 0.78);
-  --surface-strong: #0f172a;
-  --text: #f8fafc;
-  --text-muted: #cbd5e1;
-  --border: rgba(255, 255, 255, 0.10);
-  --hero-from: #0f172a;
-  --hero-via: #312e81;
-  --hero-to: #701a75;
-  --accent-from: #60a5fa;
-  --accent-to: #e879f9;
-  --accent-solid: #a855f7;
 }
 
 .animate-marquee {
@@ -74,46 +161,10 @@ html.dark {
   animation: marquee 12s linear infinite;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  background-color: var(--bg);
-  color: var(--text);
-  font-family: Arial, Helvetica, sans-serif;
-  margin: 0;
-  padding: 0;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  margin: 0;
-}
-
-a {
-  text-decoration: none;
-}
-
-button {
-  border-radius: 15px; /* Rounded corners for buttons */
-}
-
-.card:hover {
-  transform: scale(1.05); /* Slightly enlarge on hover */
-}
-
-.navbar {
-  transition: all 0.3s ease; /* Smooth transition for navbar */
-}
-
-.testimonial-card {
-  border-radius: 15px; /* Rounded corners for testimonial cards */
-}
-
 .gallery-image {
-  transition: opacity 0.3s; /* Smooth transition for gallery images */
+  transition: opacity 0.3s ease;
 }
 
 .gallery-image:hover {
-  opacity: 0.8; /* Slightly fade on hover */
+  opacity: 0.85;
 }

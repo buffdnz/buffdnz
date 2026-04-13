@@ -1,0 +1,19 @@
+Full logo:
+- 1600px wide master PNG
+- 800px wide standard web PNG
+- 3200px wide @2x PNG
+
+Logo mark:
+- 512x512
+- 256x256
+- 128x128
+
+Favicons:
+- 32x32
+- 16x16
+
+Apple touch:
+- 180x180
+
+Social cover:
+- 1200x630

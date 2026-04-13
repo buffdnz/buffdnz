@@ -1,0 +1,30 @@
+buffd-logo-primary.png
+- Main full logo
+- Transparent background
+- Use on dark sections
+
+buffd-logo-dark-bg.png
+- Same logo, slightly brighter glow
+- Optimised for black/dark charcoal UI
+
+buffd-logo-light-bg.png
+- Same logo, reduced glow, stronger dark stroke
+- For white/light backgrounds
+
+buffd-logo-mark-b.png
+- Simplified icon using just the “B”
+- Keep cyan/purple gradient and black stroke
+- No tiny splatter details
+
+buffd-favicon-32.png / 16.png
+- Use the simplified “B” only
+- Remove glow and micro details
+- High contrast, readable at tiny size
+
+buffd-apple-touch-icon.png
+- 180x180
+- Simplified “B” centred with padding
+
+buffd-social-cover.png
+- Wide banner for socials / Open Graph image
+- Full Buff’d logo centred on dark purple gradient background

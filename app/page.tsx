@@ -371,8 +371,8 @@ const Home = () => {
             <p className="text-sm text-[var(--text-muted)]">Estimated price</p>
             <p className="mt-1 text-2xl font-semibold text-[var(--text)]">{estimate ?? '—'}</p>
             <p className="mt-2 text-sm text-[var(--text-muted)]">
-              Final quote confirmed after booking review. Travel and vehicle size are included in
-              this estimate.
+              Travel and vehicle size are included in this estimate. 
+              Final quote confirmed after booking review.
             </p>
           </div>
 
@@ -410,49 +410,90 @@ const Home = () => {
   };
 
   const continueLabel = step === 'confirm' ? 'Proceed to Payment' : 'Continue';
+  const carsCleaned = 187; // This would be dynamic in a real app
+  const targetCars = 1000;
+  const progressPercentage = Math.min((carsCleaned / targetCars) * 100, 100);
 
   return (
     <div>
-      <div className="relative flex flex-col items-center justify-center pt-20 text-center">
-        <div
-          id="home"
-          className="relative flex flex-col items-center justify-center px-4 pt-12 pb-12 text-center sm:pt-16 sm:pb-16"
+      <div 
+        id="home"
+        className="relative flex flex-col items-center justify-center px-4 pt-28 pb-16 text-center sm:px-6 sm:pt-32"
+      >
+        <img
+          src="/brand/buffd/buffd-logo-primary.png"
+          alt="Buff’d"
+          className="buffd-logo buffd-logo--hero"
+        />
+        {/* Main headline */}
+        <h1 className="mt-6 max-w-4xl text-3xl font-bold leading-tight tracking-tight text-[var(--text)] sm:text-4xl lg:text-5xl">
+          Premium mobile car cleaning in Wellington
+        </h1>
+
+        {/* Supporting copy */}
+        <p className="mt-3 max-w-2xl text-base leading-relaxed theme-text-muted sm:text-lg">
+          Long-lasting interior and exterior cleaning, delivered at your location with careful attention
+          to detail.
+        </p>
+        
+        {/* Hero image */}
+        <div className="theme-hero mt-8 relative h-56 w-full max-w-5xl overflow-hidden rounded-2xl border border-white/10 shadow-xl sm:h-64 lg:h-72">
+          <img
+            src="/brand/audi-hero.jpeg"
+            alt="Freshly cleaned black Audi parked in a Wellington driveway"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        
+        {/* Donation + Progress */}
+        <div className="mt-8 flex w-full max-w-lg flex-col items-center gap-4">
+          <div className="w-full">
+            <p className="mx-auto mb-4 max-w-md text-sm leading-relaxed theme-text-muted sm:text-base">
+              When we reach  1,000 cars cleaned, we’ll donate $1,000 to{" "}
+              <span className="font-medium text-blue-400">MS NZ</span>
+            </p>
+
+            <div className="mb-2 text-center">
+              <span className="text-4xl font-bold text-[var(--text)]">
+                {carsCleaned}
+              </span>
+              <span className="ml-2 text-sm text-[var(--text)]">
+                / {targetCars}
+              </span>
+            </div>
+
+            <div className="h-4 w-full overflow-hidden rounded-full border border-white/10 bg-white/10">
+              <div
+                className="theme-accent h-full rounded-full transition-all duration-700 ease-out shadow-[0_0_20px_rgba(168,85,247,0.35)]"
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </div>
+
+            <div className="mt-2 text-center text-sm text-white/60">
+              {progressPercentage.toFixed(1)}% of goal reached
+            </div>
+          </div>
+        </div>
+
+        {/* CTA */}
+        <button
+          className="mt-6 rounded-2xl px-6 py-3 text-lg text-[var(--text)] shadow-lg transition hover:opacity-90 hover:shadow-xl theme-accent"
+          onClick={() => {
+            document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
+          }}
         >
-          <h1 className="text-4xl font-bold leading-tight tracking-tight md:text-6xl">
-            Professional Car Wash in Wellington
-          </h1>
+          View Services
+        </button>
 
-          <p className="mt-4 text-lg md:text-xl theme-text-muted sm:mt-2">
-            No scratches, trusted service, lasting impression
-          </p>
-          <p>When we hit 1,000 cars cleaned, we’ll donate $1,000 to an MS charity</p>
-          <p>[ 187 / 1000 cars ]</p>
-
-          <button
-            className="mt-5 rounded-2xl px-6 py-3 text-lg text-[var(--text)] shadow-lg transition hover:opacity-90 hover:shadow-xl theme-accent sm:mt-4"
-            onClick={() => {
-              document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
-            }}
-          >
-            View Services
-          </button>
-
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs theme-text-muted sm:mt-4 sm:text-sm">
-            <span>✔ Fully insured</span>
-            <span>✔ Mobile service</span>
-            <span>✔ 5-star local reviews</span>
-          </div>
-
-          <div className="theme-hero mt-6 flex h-56 w-full max-w-5xl items-center justify-center rounded-2xl border border-white/10 shadow-xl sm:h-64 lg:h-72">
-            <span className="text-gray-400">Hero Image Placeholder</span>
-          </div>
+        {/* Trust indicators */}
+        <div className="mt-6 flex max-w-2xl flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs theme-text-muted sm:text-sm">
+          <span>✔ Fully insured</span>
+          <span>✔ Mobile service</span>
+          <span>✔ 5-star local reviews</span>
         </div>
       </div>
 
-      <div
-        id="services"
-        className="services-section border-t border-white/5 px-4 pt-12 pb-16 sm:px-6 sm:pt-16 sm:pb-20 lg:pt-20 lg:pb-24"
-      >
+      <div id="services" className="services-section border-t border-white/5 px-4 pt-12 pb-16 sm:px-6 sm:pt-16 sm:pb-20 lg:pt-20 lg:pb-24">
         <div className="mx-auto max-w-6xl">
           <h2 className="mb-8 text-center text-3xl font-bold tracking-tight md:text-4xl sm:mb-10">
             Select a Service
