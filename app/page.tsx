@@ -5,7 +5,7 @@ import ServiceCard from '../components/ServiceCard';
 import TestimonialCard from '../components/TestimonialCard';
 import LiveChat from '../components/LiveChat';
 
-const basePath = process.env.NODE_ENV === 'production' ? '/carwashwebsite' : '';
+const basePath = process.env.NODE_ENV === 'production' ? '/buffdnz' : '';
 
 type Step = 'service' | 'vehicle' | 'doors' | 'suburb' | 'addons' | 'time' | 'contact' | 'confirm';
 
