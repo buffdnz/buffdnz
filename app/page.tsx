@@ -35,6 +35,7 @@ const Home = () => {
     timeEnd: '',
     name: '',
     phone: '',
+    selectedAddons: [] as string[],
   });
 
   // Placeholder until backend is live
@@ -75,8 +76,12 @@ const Home = () => {
         title: 'Basic Wash',
         price: '$45',
         summary: 'A quick exterior wash and interior tidy-up.',
-        features: ['Exterior hand wash', 'Interior vacuum', 'Window clean'],
-        duration: '20–30 mins',
+        features: [
+          'Exterior hand wash',
+          'Interior vacuum',
+          'Window clean'
+        ],
+        duration: '30–45 mins',
         bestFor: 'regular maintenance',
       },
       {
@@ -91,7 +96,7 @@ const Home = () => {
           'Streak-free windows (in & out)',
           'Tyre shine',
         ],
-        duration: '~45–60 mins',
+        duration: '60–90 mins',
         bestFor: 'regular maintenance',
         highlight: true,
       },
@@ -106,31 +111,40 @@ const Home = () => {
           'Stain & grime removal',
           'Detailed exterior finish',
         ],
-        duration: '~1.5–2 hours',
+        duration: '2–3 hours',
         bestFor: 'deep clean, pre-sale prep, or special occasions',
       },
       {
         key: 'premium',
-        title: 'Premium+',
-        price: 'By Request',
-        summary:
-          'By request only, showroom-level detailing for high-end vehicles or those needing extra care.',
+        price: 'Calculated',
+        title: 'Addons',
+        summary: 'Simply add what you need:',
         features: [
-          'Paint enhancement',
-          'Interior restoration',
-          'Meticulous finishing',
-          'High-end result',
+          'Headlight restore',
+          'Single-stage polish',
+          'Multi-stage polish',
+          'Seat shampoo / leather',
+          'Pet hair removal',
+          'Tar + bug removal',
+          'Iron decon',
+          'Interior protection',
+          'Engine bay clean',
         ],
-        duration: '~1.5–2 hours',
-        bestFor: 'deep clean, pre-sale prep, or special occasions',
+        duration: 'Minimum 30 mins',
+        bestFor: 'custom packages, add-ons, or specific requests',
       },
     ],
     []
   );
 
+  const ADDON_PRICE = 35;
+
   const canContinue = useMemo(() => {
     switch (step) {
       case 'vehicle':
+        if (selectedService === 'premium') {
+          return bookingData.selectedAddons.length > 0;
+        }
         return bookingData.vehicleType !== '';
       case 'doors':
         return bookingData.doors !== '';
@@ -148,15 +162,15 @@ const Home = () => {
       default:
         return false;
     }
-  }, [step, bookingData, submitting]);
+  }, [step, bookingData, submitting, selectedService]);
 
   const estimate = useMemo(() => {
     if (!selectedService) return null;
 
     const serviceBasePrices: Record<string, number> = {
-      basic: 45,
-      standard: 70,
-      deluxe: 120,
+      basic: 50,
+      standard: 90,
+      deluxe: 140,
       premium: 0,
     };
 
@@ -183,7 +197,10 @@ const Home = () => {
       lowerhutt: 20,
     };
 
-    if (selectedService === 'premium') return 'Quote on inspection';
+    if (selectedService === 'premium') {
+      const addonCount = bookingData.selectedAddons.length;
+      return addonCount > 0 ? `$${addonCount * ADDON_PRICE}` : '$0';
+    }
 
     const base = serviceBasePrices[selectedService] ?? 0;
     const vehicle = vehicleModifiers[bookingData.vehicleType] ?? 0;
@@ -221,6 +238,7 @@ const Home = () => {
       timeEnd: '',
       name: '',
       phone: '',
+      selectedAddons: [],
     });
     setSubmitState('idle');
     setStep('vehicle');
@@ -291,17 +309,62 @@ const Home = () => {
     if (!selectedService) return null;
 
     if (step === 'vehicle') {
+      const addons = serviceOptions.find((s) => s.key === 'premium')?.features ?? [];
+
+      const toggleAddon = (addon: string) => {
+        setBookingData((prev) => {
+          const exists = prev.selectedAddons.includes(addon);
+
+          return {
+            ...prev,
+            selectedAddons: exists
+              ? prev.selectedAddons.filter((a) => a !== addon)
+              : [...prev.selectedAddons, addon],
+          };
+        });
+      };
+
       return (
         <div className="space-y-4">
-          <p className="text-sm font-medium text-[var(--text)]">Select your vehicle type</p>
-          <div className="grid grid-cols-2 gap-2">
-            <button type="button" className={optionButtonClass(bookingData.vehicleType === 'sedan')} onClick={() => setBookingData((prev) => ({ ...prev, vehicleType: 'sedan' }))}>Sedan</button>
-            <button type="button" className={optionButtonClass(bookingData.vehicleType === 'hatch')} onClick={() => setBookingData((prev) => ({ ...prev, vehicleType: 'hatch' }))}>Hatchback</button>
-            <button type="button" className={optionButtonClass(bookingData.vehicleType === 'suv')} onClick={() => setBookingData((prev) => ({ ...prev, vehicleType: 'suv' }))}>SUV</button>
-            <button type="button" className={optionButtonClass(bookingData.vehicleType === 'ute' || bookingData.vehicleType === 'van')} onClick={() => setBookingData((prev) => ({ ...prev, vehicleType: 'van' }))}>Ute / Van</button>
+          <div>
+            <p className="text-sm font-medium text-[var(--text)]">Choose your addons</p>
+            <p className="mt-1 text-sm text-[var(--text-muted)]">
+              Select one or more. ${ADDON_PRICE} per addon.
+            </p>
           </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {addons.map((addon) => {
+              const isActive = bookingData.selectedAddons.includes(addon);
+
+            return (
+              <button
+                key={addon}
+                type="button"
+                onClick={() => toggleAddon(addon)}
+                className={`min-h-[60px] rounded-2xl border px-4 py-3 text-sm font-medium text-left transition ${
+                  isActive
+                    ? 'theme-accent text-white border-transparent shadow-lg'
+                    : 'border-[var(--border)] bg-white/5 text-[var(--text)] hover:bg-white/10'
+                }`}
+              >
+                {addon}
+              </button>
+            );
+          })}
         </div>
-      );
+
+        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
+          <p className="text-sm text-[var(--text-muted)]">Selected addons</p>
+          <p className="mt-1 text-lg font-semibold text-[var(--text)]">
+            {bookingData.selectedAddons.length}
+          </p>
+          <p className="mt-1 text-sm text-[var(--text-muted)]">
+            Estimated addon total: {estimate ?? '$0'}
+          </p>
+        </div>
+      </div>
+    );
     }
 
     if (step === 'doors') {
@@ -450,26 +513,28 @@ const Home = () => {
   return (
     <div>
       <div id="home"
-        className="relative flex flex-col items-center justify-center px-4 pt-28 pb-16 text-center sm:px-6 sm:pt-32"
+        className="relative flex flex-col items-center px-4 pt-20 pb-10 text-center sm:px-6 sm:pt-24"
       >
+        {/* Logo */}
         <img
           src={`${basePath}/brand/buffd/buffd-logo-primary.png`}
           alt="Buff’d"
           className="buffd-logo buffd-logo--hero"
         />
+
         {/* Main headline */}
-        <h1 className="mt-6 max-w-4xl text-3xl font-bold leading-tight tracking-tight text-[var(--text)] sm:text-4xl lg:text-5xl">
+        <h1 className="mt-4 max-w-4xl text-3xl font-bold leading-tight tracking-tight text-[var(--text)] sm:text-4xl lg:text-5xl">
           Premium mobile car cleaning in Wellington
         </h1>
 
-        {/* Supporting copy */}
-        <p className="mt-3 max-w-2xl text-base leading-relaxed theme-text-muted sm:text-lg">
+        {/* Subheading */}
+        <p className="mt-2 max-w-2xl text-base leading-relaxed theme-text-muted sm:text-lg">
           Long-lasting interior and exterior cleaning, delivered at your location with careful attention
           to detail.
         </p>
         
         {/* Hero image */}
-        <div className="theme-hero mt-8 relative h-56 w-full max-w-5xl overflow-hidden rounded-2xl border border-white/10 shadow-xl sm:h-64 lg:h-72">
+        <div className="theme-hero mt-6 relative h-44 w-full max-w-5xl overflow-hidden rounded-2xl border border-white/10 shadow-xl sm:h-52 lg:h-60">
           <img
             src={`${basePath}/brand/audi-hero.jpeg`}
             alt="Freshly cleaned black Audi parked in a Wellington driveway"
@@ -477,68 +542,58 @@ const Home = () => {
           />
         </div>
         
-        {/* Donation + Progress */}
-        <div className="mt-8 flex w-full max-w-lg flex-col items-center gap-4">
-          <div className="w-full">
-            <p className="mx-auto mb-4 max-w-md text-sm leading-relaxed theme-text-muted sm:text-base">
-              When we reach 1,000 cars cleaned, we’ll donate $1,000 to{" "}
-              <a
-                href="https://www.msnz.org.nz/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="
-                  inline-block
-                  font-semibold
-                  bg-gradient-to-r from-[var(--accent-from)] to-[var(--accent-to)]
-                  bg-clip-text text-transparent
-                  underline decoration-2 decoration-[var(--accent-to)]
-                  underline-offset-2
-                  hover:opacity-80
-                  transition
-                  drop-shadow-[0_0_6px_rgba(168,85,247,0.4)]
-                "
-              >
-                MS NZ
-              </a>
-            </p>
+        {/* CTA + Trust (merged) */}
+        <div className="mt-6 flex flex-col items-center gap-4">
+          <button
+            className="rounded-2xl px-6 py-3 text-lg text-[var(--text)] shadow-lg transition hover:opacity-90 hover:shadow-xl theme-accent"
+            onClick={() => {
+              document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            View Services
+          </button>
 
-            <div className="mb-2 text-center">
-              <span className="text-4xl font-bold text-[var(--text)]">
-                {carsCleaned}
-              </span>
-              <span className="ml-2 text-sm text-[var(--text)]">
-                / {targetCars}
-              </span>
-            </div>
-
-            <div className="h-4 w-full overflow-hidden rounded-full border border-white/10 bg-white/10">
-              <div
-                className="theme-accent h-full rounded-full transition-all duration-700 ease-out shadow-[0_0_20px_rgba(168,85,247,0.35)]"
-                style={{ width: `${progressPercentage}%` }}
-              />
-            </div>
-
-            <div className="mt-2 text-center text-sm text-white/60">
-              {progressPercentage.toFixed(1)}% of goal reached
-            </div>
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs theme-text-muted sm:text-sm">
+            <span>✔ Fully insured</span>
+            <span>✔ Mobile service</span>
+            <span>✔ 5-star local reviews</span>
           </div>
         </div>
 
-        {/* CTA */}
-        <button
-          className="mt-6 rounded-2xl px-6 py-3 text-lg text-[var(--text)] shadow-lg transition hover:opacity-90 hover:shadow-xl theme-accent"
-          onClick={() => {
-            document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
-          }}
-        >
-          View Services
-        </button>
+        {/* Donation + Progress */}
+        <div className="mt-6 w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
+          <p className="text-sm theme-text-muted">
+            When we reach 1,000 cars cleaned, we’ll donate $1,000 to{" "}
+            <a
+              href="https://www.msnz.org.nz/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="
+                inline-block
+                font-semibold
+                bg-gradient-to-r from-[var(--accent-from)] to-[var(--accent-to)]
+                bg-clip-text text-transparent
+                underline decoration-2 decoration-[var(--accent-to)]
+                underline-offset-2
+                hover:opacity-80
+                transition
+                drop-shadow-[0_0_6px_rgba(168,85,247,0.4)]
+              "
+            >
+              MS NZ
+            </a>
+          </p>
 
-        {/* Trust indicators */}
-        <div className="mt-6 flex max-w-2xl flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs theme-text-muted sm:text-sm">
-          <span>✔ Fully insured</span>
-          <span>✔ Mobile service</span>
-          <span>✔ 5-star local reviews</span>
+           <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/10">
+            <div
+              className="theme-accent h-full"
+              style={{ width: `${progressPercentage}%` }}
+            />
+          </div>
+
+          <div className="mt-1 text-xs text-white/60">
+            {progressPercentage.toFixed(1)}% of goal
+          </div>
         </div>
       </div>
 
@@ -577,6 +632,7 @@ const Home = () => {
                       duration={service.duration}
                       bestFor={service.bestFor}
                       highlight={service.highlight}
+                      featureMode={service.featureMode}
                       isSelected={isSelected}
                       step={step}
                       onSelect={() => handleSelectService(service.key)}

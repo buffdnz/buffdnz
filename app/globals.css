@@ -152,10 +152,19 @@ button {
 }
 
 .theme-hero {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, var(--hero-from), var(--hero-via), var(--hero-to));
+}
+
+.theme-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(168,85,247,0.2), transparent 70%);
+  pointer-events: none;
 }
 
 .animate-marquee {

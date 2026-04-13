@@ -10,6 +10,7 @@ type ServiceCardProps = {
   duration: string;
   bestFor: string;
   highlight?: boolean;
+  featureMode?: 'list' | 'buttons';
   isSelected?: boolean;
   step?: string;
   onSelect?: () => void;
@@ -60,11 +61,11 @@ export default function ServiceCard({
                   <li key={feature}>• {feature}</li>
                 ))}
               </ul>
-            </div>
 
-            <div className="mt-6 text-sm text-[var(--text-muted)]">
-              <p>Duration: {duration}</p>
-              <p>Best for: {bestFor}</p>
+              <div className="mt-6 text-sm text-[var(--text-muted)]">
+                <p>Duration: {duration}</p>
+                <p>Best for: {bestFor}</p>
+              </div>
             </div>
 
             <div className="mt-6">
