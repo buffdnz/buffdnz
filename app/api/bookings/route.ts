@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
       phone,
       email,
       bookingTotal,
+      selectedAddons,
     } = body;
 
     if (!service || !name || !phone || !timeStart || !timeEnd) {
@@ -67,12 +68,15 @@ export async function POST(req: NextRequest) {
       description: [
         `Customer: ${name}`,
         `Phone: +64 ${phone}`,
+        `Email: ${email || '—'}`,
         `Service: ${service}`,
         `Vehicle: ${vehicleType || '—'}`,
         `Doors: ${doors || '—'}`,
         `Suburb: ${suburb || '—'}`,
         `Preferred time: ${timeLabel || '—'}`,
+        `Addons: ${Array.isArray(selectedAddons) && selectedAddons.length > 0 ? selectedAddons.join(', ') : 'None'}`,
         `Estimated total: $${bookingTotal ?? '—'}`,
+        `Duration: ${timeStart && timeEnd ? `${Math.round((new Date(timeEnd).getTime() - new Date(timeStart).getTime()) / 60000)} mins` : '—'}`,
       ].join('\n'),
       status: ICalEventStatus.CONFIRMED,
       created: new Date(),
@@ -97,7 +101,9 @@ export async function POST(req: NextRequest) {
         `Doors: ${doors || '—'}`,
         `Suburb: ${suburb || '—'}`,
         `Preferred time: ${timeLabel || '—'}`,
+        `Addons: ${Array.isArray(selectedAddons) && selectedAddons.length > 0 ? selectedAddons.join(', ') : 'None'}`,
         `Estimated total: $${bookingTotal ?? '—'}`,
+        `Duration: ${timeStart && timeEnd ? `${Math.round((new Date(timeEnd).getTime() - new Date(timeStart).getTime()) / 60000)} mins` : '—'}`,
       ].join('\n'),
       attachments: [
         {

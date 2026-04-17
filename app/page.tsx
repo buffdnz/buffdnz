@@ -8,6 +8,87 @@ import LiveChat from '../components/LiveChat';
 const basePath = process.env.NODE_ENV === 'production' ? '/buffdnz' : '';
 const bookingsApiUrl = process.env.NEXT_PUBLIC_BOOKINGS_API_URL || '/api/bookings';
 
+// Duration in minutes per service
+const SERVICE_DURATIONS: Record<string, number> = {
+  basic: 45,
+  standard: 90,
+  deluxe: 180,
+};
+
+// Extra time in minutes per addon
+const ADDON_DURATIONS: Record<string, number> = {
+  headlight: 30,
+  'single-polish': 45,
+  'multi-polish': 90,
+  'seat-shampoo': 30,
+  'pet-hair': 20,
+  'tar-bug': 20,
+  'iron-decon': 20,
+  'interior-protect': 15,
+  'engine-bay': 30,
+};
+
+// Slot start hours in NZ local time
+const SLOT_START_HOURS = [10, 12, 15];
+
+function formatDuration(mins: number): string {
+  if (mins < 60) return `${mins}m`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
+}
+
+function generateTimeSlots(serviceKey: string, selectedAddons: string[]): TimeSlot[] {
+  const serviceMins = SERVICE_DURATIONS[serviceKey] ?? 60;
+  const addonMins = selectedAddons.reduce((sum, k) => sum + (ADDON_DURATIONS[k] ?? 0), 0);
+  const totalMins = serviceMins + addonMins;
+
+  const slots: TimeSlot[] = [];
+  const nowMs = Date.now();
+
+  // Today's date string in NZ (YYYY-MM-DD)
+  const todayNZ = new Date().toLocaleDateString('en-CA', { timeZone: 'Pacific/Auckland' });
+  const [todayY, todayM, todayD] = todayNZ.split('-').map(Number);
+
+  for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
+    const d = new Date(todayY, todayM - 1, todayD + dayOffset);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+
+    const dayLabel =
+      dayOffset === 0
+        ? 'Today'
+        : dayOffset === 1
+        ? 'Tomorrow'
+        : d.toLocaleDateString('en-NZ', { weekday: 'long' });
+
+    for (const startHour of SLOT_START_HOURS) {
+      const startISO = `${yyyy}-${mm}-${dd}T${String(startHour).padStart(2, '0')}:00:00+12:00`;
+
+      // Skip slots within the next hour
+      if (new Date(startISO).getTime() < nowMs + 60 * 60 * 1000) continue;
+
+      const endTotalMins = startHour * 60 + totalMins;
+      const endHH = String(Math.floor(endTotalMins / 60)).padStart(2, '0');
+      const endMM = String(endTotalMins % 60).padStart(2, '0');
+      const endISO = `${yyyy}-${mm}-${dd}T${endHH}:${endMM}:00+12:00`;
+
+      const timeLabel =
+        startHour === 10 ? '10:00 am' : startHour === 12 ? '12:00 pm' : '3:00 pm';
+
+      slots.push({
+        id: `${yyyy}-${mm}-${dd}T${String(startHour).padStart(2, '0')}:00`,
+        label: `${dayLabel}, ${timeLabel} · ${formatDuration(totalMins)}`,
+        start: startISO,
+        end: endISO,
+      });
+    }
+  }
+
+  return slots;
+}
+
 type Step = 'service' | 'vehicle' | 'doors' | 'suburb' | 'addons' | 'time' | 'contact' | 'confirm';
 
 type TimeSlot = {
@@ -48,36 +129,20 @@ const Home = () => {
     selectedAddons: [] as string[],
   });
 
-  // Placeholder until backend is live
   const availableTimeSlots = useMemo<TimeSlot[]>(
-    () => [
-      {
-        id: '2026-04-13T17:00',
-        label: 'Today, 5:00 pm',
-        start: '2026-04-13T17:00:00+12:00',
-        end: '2026-04-13T18:00:00+12:00',
-      },
-      {
-        id: '2026-04-14T10:00',
-        label: 'Tomorrow, 10:00 am',
-        start: '2026-04-14T10:00:00+12:00',
-        end: '2026-04-14T11:00:00+12:00',
-      },
-      {
-        id: '2026-04-14T13:00',
-        label: 'Tomorrow, 1:00 pm',
-        start: '2026-04-14T13:00:00+12:00',
-        end: '2026-04-14T14:00:00+12:00',
-      },
-      {
-        id: '2026-04-18T11:00',
-        label: 'Saturday, 11:00 am',
-        start: '2026-04-18T11:00:00+12:00',
-        end: '2026-04-18T12:00:00+12:00',
-      },
-    ],
-    []
+    () => generateTimeSlots(selectedService, bookingData.selectedAddons),
+    [selectedService, bookingData.selectedAddons]
   );
+
+  // Clear chosen time slot if service or addons change (end time would be stale)
+  const prevSlotKey = React.useRef('');
+  const slotKey = `${selectedService}:${bookingData.selectedAddons.join(',')}`;
+  React.useEffect(() => {
+    if (prevSlotKey.current && prevSlotKey.current !== slotKey) {
+      setBookingData((p) => ({ ...p, timeSlotId: '', timeLabel: '', timeStart: '', timeEnd: '' }));
+    }
+    prevSlotKey.current = slotKey;
+  }, [slotKey]);
 
   const serviceOptions = useMemo(
     () => [
