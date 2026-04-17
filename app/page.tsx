@@ -6,7 +6,7 @@ import TestimonialCard from '../components/TestimonialCard';
 import LiveChat from '../components/LiveChat';
 
 const basePath = process.env.NODE_ENV === 'production' ? '/buffdnz' : '';
-const bookingsApiUrl = process.env.NEXT_PUBLIC_BOOKINGS_API_URL || '/api/bookings';
+
 
 function toICSDate(iso: string): string {
   // Extract local date/time directly from ISO string (e.g. 2026-04-18T10:00:00+12:00)
@@ -432,24 +432,6 @@ const Home = () => {
         sedan: 'Sedan', hatch: 'Hatch', suv: 'SUV', ute: 'Ute', van: 'Van',
       };
 
-      const buildMessage = () => [
-        `Service:        ${serviceLabel}`,
-        `Vehicle:        ${vehicleLabels[bookingData.vehicleType] ?? (bookingData.vehicleType || '—')}`,
-        `Doors:          ${bookingData.doors || '—'}`,
-        `Suburb:         ${suburbLabels[bookingData.suburb] ?? (bookingData.suburb || '—')}`,
-        `Addons:         ${addonLabels}`,
-        ``,
-        `Date/time:      ${bookingData.timeStart ? fmtDate(bookingData.timeStart) : '—'}`,
-        `Finish by:      ${bookingData.timeEnd ? fmtDate(bookingData.timeEnd) : '—'}`,
-        `Duration:       ${bookingData.timeLabel?.split('·')[1]?.trim() ?? '—'}`,
-        ``,
-        `Name:           ${bookingData.name}`,
-        `Phone:          +64 ${bookingData.phone}`,
-        `Email:          ${bookingData.email}`,
-        ``,
-        `Booking total:  $${bookingTotal ?? '—'}`,
-      ].join('\n');
-
       const downloadICS = () => {
         const icsText = buildICS({
           summary: `Buff'd booking — ${serviceLabel}`,
@@ -476,24 +458,6 @@ const Home = () => {
         URL.revokeObjectURL(url);
       };
 
-      const submitViaFormFallback = async () => {
-        const fallbackRes = await fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({
-            access_key: '90eda1de-3d09-4d73-a2c0-87d49beab2f4',
-            name: bookingData.name,
-            email: bookingData.email,
-            subject: `New booking — ${bookingData.name} · ${serviceLabel} · ${bookingData.timeStart ? fmtDate(bookingData.timeStart) : ''}`,
-            message: buildMessage(),
-          }),
-        });
-        const fallbackData = await fallbackRes.json().catch(() => ({}));
-        if (!fallbackRes.ok || !fallbackData?.success) {
-          throw new Error(fallbackData?.message || fallbackData?.error || `Booking email failed to send`);
-        }
-      };
-
       try {
         setSubmitting(true);
         setSubmitState('idle');
@@ -501,7 +465,7 @@ const Home = () => {
 
         const bookingPayload = { ...bookingData, bookingTotal, estimate };
 
-        const res = await fetch(bookingsApiUrl, {
+        const res = await fetch('/api/bookings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(bookingPayload),
@@ -510,30 +474,12 @@ const Home = () => {
         const data = await res.json().catch(() => ({}));
 
         if (!res.ok) {
-          const shouldFallbackToDirectEmail =
-            bookingsApiUrl === '/api/bookings' && (res.status === 404 || res.status === 405);
-
-          if (shouldFallbackToDirectEmail) {
-            await submitViaFormFallback();
-          } else {
-            throw new Error(data?.error || `Request failed with status ${res.status}`);
-          }
+          throw new Error(data?.error || `Request failed with status ${res.status}`);
         }
 
         downloadICS();
         setSubmitState('success');
       } catch (error) {
-        if (bookingsApiUrl === '/api/bookings') {
-          try {
-            await submitViaFormFallback();
-            downloadICS();
-            setSubmitState('success');
-            return;
-          } catch (fallbackError) {
-            console.error(fallbackError);
-          }
-        }
-
         console.error(error);
         setSubmitError(error instanceof Error ? error.message : 'Unknown error');
         setSubmitState('error');
