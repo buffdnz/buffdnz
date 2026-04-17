@@ -448,9 +448,10 @@ const Home = () => {
         `Email:          ${bookingData.email}`,
         ``,
         `Booking total:  $${bookingTotal ?? '—'}`,
-        ``,
-        `--- CALENDAR EVENT (copy text below into a .ics file to import) ---`,
-        buildICS({
+      ].join('\n');
+
+      const downloadICS = () => {
+        const icsText = buildICS({
           summary: `Buff'd booking — ${serviceLabel}`,
           description: [
             `Customer: ${bookingData.name}`,
@@ -465,8 +466,15 @@ const Home = () => {
           timeStart: bookingData.timeStart,
           timeEnd: bookingData.timeEnd,
           uid: `buffd-${Date.now()}@buffd.nz`,
-        }),
-      ].join('\n');
+        });
+        const blob = new Blob([icsText], { type: 'text/calendar;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'buffd-booking.ics';
+        a.click();
+        URL.revokeObjectURL(url);
+      };
 
       const submitViaFormFallback = async () => {
         const fallbackRes = await fetch('https://api.web3forms.com/submit', {
@@ -512,11 +520,13 @@ const Home = () => {
           }
         }
 
+        downloadICS();
         setSubmitState('success');
       } catch (error) {
         if (bookingsApiUrl === '/api/bookings') {
           try {
             await submitViaFormFallback();
+            downloadICS();
             setSubmitState('success');
             return;
           } catch (fallbackError) {
