@@ -324,23 +324,24 @@ const Home = () => {
             `Estimate: ${estimate?.label ?? '—'}`,
           ].join('\n');
 
-          const fallbackRes = await fetch('https://formsubmit.co/ajax/buffd.nz@gmail.com', {
+          const fallbackRes = await fetch('https://api.web3forms.com/submit', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               Accept: 'application/json',
             },
             body: JSON.stringify({
+              access_key: '90eda1de-3d09-4d73-a2c0-87d49beab2f4',
               name: bookingData.name,
               email: bookingData.email,
-              _subject: `New booking request - ${bookingData.name} - ${bookingData.service}`,
+              subject: `New booking request - ${bookingData.name} - ${bookingData.service}`,
               message,
             }),
           });
 
           const fallbackData = await fallbackRes.json().catch(() => ({}));
 
-          if (!fallbackRes.ok || fallbackData?.success === 'false' || fallbackData?.success === false) {
+          if (!fallbackRes.ok || !fallbackData?.success) {
             throw new Error(
               fallbackData?.message ||
                 fallbackData?.error ||
@@ -388,23 +389,24 @@ const Home = () => {
               `Estimate: ${estimate?.label ?? '—'}`,
             ].join('\n');
 
-            const fallbackRes = await fetch('https://formsubmit.co/ajax/buffd.nz@gmail.com', {
+            const fallbackRes = await fetch('https://api.web3forms.com/submit', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
               },
               body: JSON.stringify({
+                access_key: '90eda1de-3d09-4d73-a2c0-87d49beab2f4',
                 name: bookingData.name,
                 email: bookingData.email,
-                _subject: `New booking request - ${bookingData.name} - ${bookingData.service}`,
+                subject: `New booking request - ${bookingData.name} - ${bookingData.service}`,
                 message,
               }),
             });
 
             const fallbackData = await fallbackRes.json().catch(() => ({}));
 
-            if (!fallbackRes.ok || fallbackData?.success === 'false' || fallbackData?.success === false) {
+            if (!fallbackRes.ok || !fallbackData?.success) {
               throw new Error(
                 fallbackData?.message ||
                   fallbackData?.error ||
