@@ -340,11 +340,11 @@ const Home = () => {
 
           const fallbackData = await fallbackRes.json().catch(() => ({}));
 
-          if (!fallbackRes.ok) {
+          if (!fallbackRes.ok || fallbackData?.success === 'false' || fallbackData?.success === false) {
             throw new Error(
               fallbackData?.message ||
                 fallbackData?.error ||
-                `Fallback request failed with status ${fallbackRes.status}`
+                `Booking email failed to send`
             );
           }
         };
@@ -404,11 +404,11 @@ const Home = () => {
 
             const fallbackData = await fallbackRes.json().catch(() => ({}));
 
-            if (!fallbackRes.ok) {
+            if (!fallbackRes.ok || fallbackData?.success === 'false' || fallbackData?.success === false) {
               throw new Error(
                 fallbackData?.message ||
                   fallbackData?.error ||
-                  `Fallback request failed with status ${fallbackRes.status}`
+                  `Booking email failed to send`
               );
             }
 
